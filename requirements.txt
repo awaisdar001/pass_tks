@@ -2,5 +2,3 @@ Django==3.2.5
 djangorestframework==3.12.4
 djangorestframework-xml==2.0.0
 sqlparse==0.4.1
-
-
