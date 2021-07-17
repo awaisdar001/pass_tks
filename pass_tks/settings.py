@@ -124,12 +124,6 @@ REST_FRAMEWORK = {
     'DEFAULT_PERMISSION_CLASSES': [
         'rest_framework.permissions.AllowAny',
     ],
-    'DEFAULT_PARSER_CLASSES': [
-        'rest_framework_xml.parsers.XMLParser',
-    ],
-    'DEFAULT_RENDERER_CLASSES': [
-        'pass_tks.xml_renderer.ListingsXMLRenderer',
-    ],
 }
 
 STATIC_DIR = BASE_DIR / 'static'

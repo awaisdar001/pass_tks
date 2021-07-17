@@ -7,57 +7,43 @@ from django.utils.xmlutils import SimplerXMLGenerator
 from rest_framework_xml.renderers import XMLRenderer
 
 
-class ListingsXMLRenderer(XMLRenderer):
+class CustomXMLRenderer(XMLRenderer):
     """Custom XML render for the app."""
-
-    def __init__(self, root_tag='root', item_tag='list-item'):
-        self.root_tag_name = root_tag
-        self.item_tag_name = item_tag
-        # before using this for other views, make sure there exists a relevant
-        # parse method, otherwise create one.
-        self.mappings = {
-            'outcode': self.parse_outcode,
-            'outcodes': self.parse_outcodes
-        }
+    root_contents_key = None
 
     @staticmethod
-    def select_valid_property_names(data):
+    def select_valid_property_names(data, clear_from_data=False):
         """Filters properties from the provided data that are strings."""
         selected_properties = {}
         for key, value in data.items():
             if isinstance(value, str):
                 selected_properties[key] = value
+
+        if clear_from_data:
+            for key in selected_properties: del data[key]
         return selected_properties
 
-    def create_outcode_element_with_properties(self, xml, outcode_info):
-        """Creates an XML object for provided outcode information. """
-        outcode_contents = outcode_info.pop('id', None)
-        selected_properties = self.select_valid_property_names(outcode_info)
-        for key in selected_properties: del outcode_info[key]
-        xml.addQuickElement('outcode', outcode_contents, selected_properties)
+    def render_body(self, xml, data):
+        raise NotImplemented
+
+    def create_element_with_properties(self, xml, data, contents):
+        """Creates an XML object with provided data."""
+        if not isinstance(data, dict):
+            return xml
+
+        selected_properties = self.select_valid_property_names(data, clear_from_data=True)
+        xml.addQuickElement('outcode', contents, selected_properties)
         return xml
 
     def parse_root(self, xml, data):
         """Adds root xml element to the xml response"""
-        outcode_contents = data.pop('id', None)
-        selected_properties = self.select_valid_property_names(data)
+        data_contents = None
+        if self.root_contents_key:
+            data_contents = data.pop(self.root_contents_key, None)
+
+        selected_properties = self.select_valid_property_names(data, clear_from_data=True)
         xml.startElement(self.root_tag_name, selected_properties)
-        xml.characters(outcode_contents)
-        return xml
-
-    def parse_outcodes(self, xml, data):
-        """Parse outcodes view to an XML response."""
-        xml = self.parse_root(xml, data)
-        outcodes = data.get('outcodes', [])
-        for outcode in outcodes:
-            self.create_outcode_element_with_properties(xml, outcode)
-        xml.endElement(self.root_tag_name)
-        return xml
-
-    def parse_outcode(self, xml, data):
-        """Parse outcode view to an XML response."""
-        xml = self.parse_root(xml, data)
-        xml.endElement(self.root_tag_name)
+        xml.characters(data_contents)
         return xml
 
     def render(self, data, accepted_media_type=None, renderer_context=None):
@@ -72,7 +58,34 @@ class ListingsXMLRenderer(XMLRenderer):
         xml = SimplerXMLGenerator(stream, self.charset)
         xml.startDocument()
 
-        xml = self.mappings[self.root_tag_name](xml, data)
+        xml = self.parse_root(xml, data)
+        xml = self.render_body(xml, data)
 
         xml.endDocument()
         return stream.getvalue()
+
+
+class OutcodeXMLRenderer(CustomXMLRenderer):
+    """Parse outcode data to an XML response."""
+    root_tag_name = 'outcode'
+    root_contents_key = 'id'
+
+    def render_body(self, xml, data):
+        """Parse outcode view to an XML response."""
+        xml.endElement(self.root_tag_name)
+        return xml
+
+
+class OutcodesXMLRenderer(CustomXMLRenderer):
+    """Parse outcodes data to an XML response."""
+    root_tag_name = 'outcodes'
+    root_contents_key = 'id'
+
+    def render_body(self, xml, data):
+        """Parse outcodes data to an XML response."""
+        outcodes = data.get('outcodes', [])
+        for outcode in outcodes:
+            contents = outcode.pop('id', None)
+            self.create_element_with_properties(xml, outcode, contents)
+        xml.endElement(self.root_tag_name)
+        return xml

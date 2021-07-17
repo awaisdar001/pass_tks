@@ -6,7 +6,7 @@ from rest_framework.views import APIView
 from api.models import ListingManager
 from api.postcodes_api import PostCodesAPI
 from api.utils import sum_and_calculate_avg_for_data
-from pass_tks.xml_renderer import ListingsXMLRenderer
+from pass_tks.xml_renderer import OutcodeXMLRenderer, OutcodesXMLRenderer
 
 PostcodesAPI = PostCodesAPI()
 AreaListing = ListingManager()
@@ -19,7 +19,7 @@ class OutCodeDetailView(APIView):
 
     def get_renderers(self):
         """Returns the renderers that this view can use."""
-        return [ListingsXMLRenderer(root_tag="outcode")]
+        return [OutcodeXMLRenderer()]
 
     def get(self, request, outcode):
         """
@@ -42,7 +42,7 @@ class OutCodeNearestView(APIView):
 
     def get_renderers(self):
         """Returns the renderers that this view can use."""
-        return [ListingsXMLRenderer(root_tag='outcodes')]
+        return [OutcodesXMLRenderer()]
 
     def get(self, request, outcode, **kwargs):
         """
