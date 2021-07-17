@@ -134,3 +134,4 @@ REST_FRAMEWORK = {
 
 STATIC_DIR = BASE_DIR / 'static'
 LISTING_FILE_NAME = 'listings.csv'
+LISTING_REQUIRED_DATA_COLS = ['price', 'neighbourhood_group_cleansed']

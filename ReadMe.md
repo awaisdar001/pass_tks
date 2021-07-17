@@ -24,12 +24,13 @@ Getting Started
 
 2. Create a python3 virtualenv and activate it.
 
-       python3 -m venv ./venv
-       source ./venv/bin/activate
+       python3 -m venv ~/venvs/pjvenv
+       source ~/venvs/pjvenv/bin/activate
 
 3. Install requirements inside of the virtual env
    
        make requirements
+
 4. Run migrations and set up the database locally.
    
        make update_db
