@@ -1,6 +1,7 @@
 """Data models for the api app."""
 from api.cache import BasicCache
-from api.utils import DistrictListingReader, sum_and_calculate_avg_for_data
+from api.listing_reader import DistrictListingReader
+from api.utils import sum_and_calculate_avg_for_data
 
 
 class ListingManager(BasicCache):

@@ -4,7 +4,7 @@ from rest_framework.response import Response
 from rest_framework.views import APIView
 
 from api.models import ListingManager
-from api.postcodes import PostCodesAPI
+from api.postcodes_api import PostCodesAPI
 from api.utils import sum_and_calculate_avg_for_data
 from pass_tks.xml_renderer import ListingsXMLRenderer
 
