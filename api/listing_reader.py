@@ -26,9 +26,12 @@ class DistrictListingReader:
         are not available.
         """
         field_names = self._csv_reader.fieldnames
-        if not all([column in field_names for column in self.required_columns]):
+        if not all([
+            column in field_names
+            for column in self.required_columns
+        ]):
             raise ValueError(
-                f'Data file "{self.file_name}" is missing one of required columns: {self.required_columns}.'
+                f'Data file "{self.file_name}" is missing required columns: {self.required_columns}.'
             )
 
     def rows(self):
