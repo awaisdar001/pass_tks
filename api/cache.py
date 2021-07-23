@@ -32,4 +32,4 @@ class BasicCache:
 
     def get_api_response_in_cache(self, key):
         """Returns api response from the cache."""
-        self._get_cache(f'{key}-api')
+        return self._get_cache(f'{key}-api')

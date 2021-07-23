@@ -14,10 +14,10 @@ class CustomXMLRenderer(XMLRenderer):
     @staticmethod
     def select_valid_property_names(data, clear_from_data=False):
         """Filters properties from the provided data that are strings."""
-        selected_properties = {}
-        for key, value in data.items():
-            if isinstance(value, str):
-                selected_properties[key] = value
+        selected_properties = dict([
+            (key, value)
+            for key, value in data.items() if isinstance(value, str)
+        ])
 
         if clear_from_data:
             for key in selected_properties: del data[key]
@@ -37,13 +37,13 @@ class CustomXMLRenderer(XMLRenderer):
 
     def parse_root(self, xml, data):
         """Adds root xml element to the xml response"""
-        data_contents = None
-        if self.root_contents_key:
-            data_contents = data.pop(self.root_contents_key, None)
+        root_content = None
+        if self.root_contents_key and self.root_contents_key in data:
+            root_content = data.pop(self.root_contents_key, None)
 
-        selected_properties = self.select_valid_property_names(data, clear_from_data=True)
-        xml.startElement(self.root_tag_name, selected_properties)
-        xml.characters(data_contents)
+        root_attrs = self.select_valid_property_names(data, clear_from_data=True)
+        xml.startElement(name=self.root_tag_name, attrs=root_attrs)
+        xml.characters(content=root_content)
         return xml
 
     def render(self, data, accepted_media_type=None, renderer_context=None):
@@ -86,6 +86,6 @@ class OutcodesXMLRenderer(CustomXMLRenderer):
         outcodes = data.get('outcodes', [])
         for outcode in outcodes:
             contents = outcode.pop('id', None)
-            self.create_element_with_properties(xml, outcode, contents)
+            self.create_element_with_properties(xml, data=outcode, contents=contents)
         xml.endElement(self.root_tag_name)
         return xml
